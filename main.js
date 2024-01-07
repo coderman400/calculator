@@ -14,6 +14,7 @@ let resultnum;
 //CLEAR 
 clear.addEventListener("click", function(){
     expression.value = "";
+    
 })
 //BACKSPACE
 back.addEventListener("click", function(){
@@ -37,8 +38,10 @@ function write(){
 }
 //function on op click
 oparray = ["+","-","÷","x"];
+oppattern = /\+|-|÷|x/;
 dotpattern= /\.+/;
 flag=0;
+
 function writeop(){
     last= expression.value.slice(-1);
     current = this.innerHTML
@@ -55,7 +58,7 @@ function writeop(){
         flag+=1;
     }
     //no more than 1 dot
-    if ((dotpattern.test(expression.value) && current=='.' )||(current=='.' && last==')')){
+    if ((current=='.' && last==')')){
         return;
     }
     if (current == '('){
@@ -66,6 +69,12 @@ function writeop(){
             return;
         }
         flag-=1;
+    }
+    //allow multiple numbers to be decimals
+    if (current =='.' && expression.value.lastIndexOf('.')!=-1){
+        if(!oppattern.test(expression.value.slice(expression.value.lastIndexOf('.'),-1))){
+            return;
+        }
     }
     expression.value = expression.value.concat(current);
 }
@@ -147,15 +156,22 @@ function operate(){
                 }
                 //else check precedence with top
                 //if currents precedence >= top then push
-                if(precedence(exp[i])>=precedence(ostack[ostack.length-1])){
+                if(precedence(exp[i])>precedence(ostack[ostack.length-1])){
                     ostack.push(exp[i]);
                 }else{
                 //else pop until above is satisfied
-                    while(precedence(exp[i])<precedence(ostack[ostack.length-1])){
+                    counter=1;
+                    while(precedence(exp[i])<=precedence(ostack[ostack.length-1]) && ostack.length!=0){
+                        counter++;
                         b = nstack.pop();
                         a = nstack.pop();
                         opr = ostack.pop();
                         nstack.push(calculate(a,b,opr));
+                        console.log("JUST PUSHED ",nstack[nstack.length-1]);
+                        if(counter==20){
+                            console.log("fucked ", ostack.length);
+                            return;
+                        }
                     }
                     ostack.push(exp[i]);
                 }
@@ -166,13 +182,13 @@ function operate(){
     }
     console.log("before loop ostack is ", ostack);
     while(ostack.length!=0){
-        console.log("popping");
         b = nstack.pop();
         a = nstack.pop();
         opr = ostack.pop();
         nstack.push(calculate(a,b,opr));
+        console.log("JUST PUSHED ",nstack[nstack.length-1]);
     }
-    console.log(resultnum);
+    result.value = resultnum;
 }
 
 
