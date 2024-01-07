@@ -14,7 +14,7 @@ let resultnum;
 //CLEAR 
 clear.addEventListener("click", function(){
     expression.value = "";
-    
+    result.value = "";
 })
 //BACKSPACE
 back.addEventListener("click", function(){
@@ -47,6 +47,10 @@ function writeop(){
     current = this.innerHTML
     //string should not be empty
     if (expression.value==""){
+        if(current =='('){
+            expression.value = expression.value.concat(current);
+            flag+=1;
+        }
         return;
     }
     //last element should not be operator or (
@@ -168,10 +172,6 @@ function operate(){
                         opr = ostack.pop();
                         nstack.push(calculate(a,b,opr));
                         console.log("JUST PUSHED ",nstack[nstack.length-1]);
-                        if(counter==20){
-                            console.log("fucked ", ostack.length);
-                            return;
-                        }
                     }
                     ostack.push(exp[i]);
                 }
